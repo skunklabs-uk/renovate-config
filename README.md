@@ -9,15 +9,17 @@ Shared Renovate presets for repositories owned by `skunklabs-uk`.
 
 `prCreation` is intentionally `immediate`: the shared preset must also work in repositories that only run CI for pull requests or protected branches and do not execute checks on `renovate/**` branches. Minimum release age remains the freshness gate for external dependencies when the datasource provides a supported release timestamp.
 
-## OCI CalVer
+## OCI release coordinates
 
-The proprietary OCI producers consumed by Homelab use immutable calendar versions in the form `YYYY.MM.DD_<run_number>`. `default.json` is the authoritative package list for this rule and applies the same regex ordering to both direct GHCR names and the canonical Harbor `private-ghcr` consumer names.
+The proprietary OCI producers consumed by Homelab use immutable human-readable release coordinates in the form `YYYY.MM.DD-wN-bN[-gN]`, for example `2026.08.24-w19-b01-g1`. `default.json` is the authoritative package list for this rule and applies the same regex ordering to both direct GHCR names and the canonical Harbor `private-ghcr` consumer names.
 
-These **internal OCI releases are explicitly exempt from `minimumReleaseAge`**. Homelab is also a development environment and must be able to consume a newly produced internal CalVer immediately after the producer's own build/test/security gates succeed. Applying the external 7/14/30-day freshness delay to our own images would add latency without providing the intended upstream-stabilization benefit.
+Renovate maps date to `major/minor/patch`, wave to `build`, batch to `revision`, and optional generation to the numeric `prerelease` group. `ignoreUnstable` is therefore disabled for this package rule: `gN` is execution-generation metadata in the Skunklabs release contract, not an unstable product release.
 
-The exemption only removes the age wait. It does not weaken the rest of the supply-chain contract: internal releases remain immutable CalVer artifacts, traceable to SHA/digest and subject to the producer, Harbor and consumer/runtime controls that apply to the workload.
+These **internal OCI releases are explicitly exempt from `minimumReleaseAge`**. Homelab is also a development environment and must be able to consume a newly produced internal release immediately after the producer's own build/test/security gates succeed. Applying the external 7/14/30-day freshness delay to our own images would add latency without providing the intended upstream-stabilization benefit.
 
-Mutable aliases such as `latest`, branch tags or other release tags are not the operational GitOps version source when an immutable CalVer is available.
+The exemption only removes the age wait. It does not weaken the rest of the supply-chain contract: internal releases remain immutable artifacts, traceable to SHA/digest and subject to the producer, Harbor and consumer/runtime controls that apply to the workload.
+
+Mutable aliases such as `latest`, branch tags or other release tags are not the operational GitOps version source when an immutable release coordinate is available.
 
 ## Repository self-management
 
@@ -35,7 +37,7 @@ The standard split adopted during Wave `skunklabs-uk/developer-workspace#33` is:
 - when that split is used, Renovate is disabled **only** for `depType: action`, not for the whole `github-actions` manager;
 - Renovate remains owner of `depType: uses-with`, including explicit tool versions such as `aquasecurity/trivy-action` `with.version`;
 - the shared 7/14/30-day minimum release age remains the freshness gate for normal **external** upgrades managed by Renovate;
-- proprietary OCI packages listed in the CalVer rule are the intentional exception and may be proposed immediately;
+- proprietary OCI packages listed in the release-coordinate rule are the intentional exception and may be proposed immediately;
 - do not duplicate these cooldowns in consumers or force a cross-repository upgrade merely to make all repositories show the same external version on the same day.
 
 A repository may bypass the external cooldown only for a concrete, documented exception such as a verified security gate with an upstream fix. The standing internal-OCI exemption is defined centrally in `default.json` and does not need to be re-declared by consumers.
