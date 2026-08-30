@@ -11,17 +11,21 @@ Shared Renovate presets for repositories owned by `skunklabs-uk`.
 
 ## OCI release coordinates
 
-Most proprietary OCI producers consumed by Homelab use immutable human-readable release coordinates in the form `YYYY.MM.DD-wNN-bNN[-gNN]`, for example `2026.08.24-w19-b01-g01`. `default.json` is the authoritative package list for this CalVer rule and applies the same regex ordering to both direct GHCR names and the canonical Harbor `private-ghcr` consumer names.
+All proprietary OCI producers consumed by Homelab use the same immutable release-coordinate format:
 
-Renovate maps date to `major/minor/patch`, wave to `build`, batch to `revision`, and optional generation to the numeric `prerelease` group. `ignoreUnstable` is therefore disabled for this package rule: `gNN` is execution-generation metadata in the Skunklabs release contract, not an unstable product release.
+`YYYY.MM.DD-bNNNNNN`
 
-`baialupo.com` is intentionally excluded from Renovate's Docker update ownership. Its operational release coordinate is source-addressed (`sha-<12 hex>`) and Argo CD Image Updater is the sole first-party updater for that image in Homelab. Disabling the package here prevents a second updater or an obsolete CalVer parser from competing with the GitOps owner.
+Example: `2026.08.30-b000187`.
 
-The internal CalVer OCI releases that remain listed in the rule are explicitly exempt from `minimumReleaseAge`. Homelab is also a development environment and must be able to consume a newly produced internal release immediately after the producer's own build/test/security gates succeed. Applying the external 7/14/30-day freshness delay to our own images would add latency without providing the intended upstream-stabilization benefit.
+`NNNNNN` is the zero-padded `GITHUB_RUN_NUMBER` of the canonical producer workflow. This makes versions unique for new runs and monotonically comparable within each image/workflow without a manual counter. A rerun keeps the same run number, so producer-side immutability guards continue to refuse overwrite of an already published coordinate.
 
-The exemption only removes the age wait. It does not weaken the rest of the supply-chain contract: internal releases remain immutable artifacts, traceable to SHA/digest and subject to the producer, Harbor and consumer/runtime controls that apply to the workload.
+`default.json` is the authoritative package list and applies the same regex ordering to direct GHCR names and canonical Harbor `private-ghcr` consumer names. Renovate maps date to `major/minor/patch` and the build number to the numeric `build` group.
 
-Mutable aliases such as `latest`, branch tags or other release tags are not the operational GitOps version source when an immutable release coordinate is available.
+These internal OCI releases are explicitly exempt from `minimumReleaseAge`. Homelab must be able to consume a newly produced internal release immediately after the producer's own build/test gates succeed. The exemption removes only the age wait; it does not weaken immutability, SHA/digest traceability, Harbor scanning or GitOps ownership.
+
+Argo CD Image Updater remains the first-party deployment owner in Homelab; Renovate's parser exists for dependency interpretation and must not introduce a competing GitOps write path.
+
+Mutable aliases such as `latest`, branch tags or SHA recovery tags are not the operational GitOps version source when an immutable release coordinate is available.
 
 ## Repository self-management
 
@@ -39,8 +43,7 @@ The standard split adopted during Wave `skunklabs-uk/developer-workspace#33` is:
 - when that split is used, Renovate is disabled **only** for `depType: action`, not for the whole `github-actions` manager;
 - Renovate remains owner of `depType: uses-with`, including explicit tool versions such as `aquasecurity/trivy-action` `with.version`;
 - the shared 7/14/30-day minimum release age remains the freshness gate for normal **external** upgrades managed by Renovate;
-- proprietary OCI packages listed in the CalVer release-coordinate rule are the intentional exception and may be proposed immediately;
-- source-addressed proprietary OCI packages explicitly disabled in `default.json` are owned by their declared GitOps updater instead of Renovate;
+- proprietary OCI packages listed in the release-coordinate rule are the intentional exception and may be proposed immediately;
 - do not duplicate these cooldowns in consumers or force a cross-repository upgrade merely to make all repositories show the same external version on the same day.
 
 A repository may bypass the external cooldown only for a concrete, documented exception such as a verified security gate with an upstream fix. The standing internal-OCI exemption is defined centrally in `default.json` and does not need to be re-declared by consumers.
