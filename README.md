@@ -11,9 +11,9 @@ Shared Renovate presets for repositories owned by `skunklabs-uk`.
 
 ## OCI release coordinates
 
-The proprietary OCI producers consumed by Homelab use immutable human-readable release coordinates in the form `YYYY.MM.DD-wN-bN[-gN]`, for example `2026.08.24-w19-b01-g1`. `default.json` is the authoritative package list for this rule and applies the same regex ordering to both direct GHCR names and the canonical Harbor `private-ghcr` consumer names.
+The proprietary OCI producers consumed by Homelab use immutable human-readable release coordinates in the form `YYYY.MM.DD-wNN-bNN[-gNN]`, for example `2026.08.24-w19-b01-g01`. `default.json` is the authoritative package list for this rule and applies the same regex ordering to both direct GHCR names and the canonical Harbor `private-ghcr` consumer names.
 
-Renovate maps date to `major/minor/patch`, wave to `build`, batch to `revision`, and optional generation to the numeric `prerelease` group. `ignoreUnstable` is therefore disabled for this package rule: `gN` is execution-generation metadata in the Skunklabs release contract, not an unstable product release.
+Renovate maps date to `major/minor/patch`, wave to `build`, batch to `revision`, and optional generation to the numeric `prerelease` group. `ignoreUnstable` is therefore disabled for this package rule: `gNN` is execution-generation metadata in the Skunklabs release contract, not an unstable product release.
 
 These **internal OCI releases are explicitly exempt from `minimumReleaseAge`**. Homelab is also a development environment and must be able to consume a newly produced internal release immediately after the producer's own build/test/security gates succeed. Applying the external 7/14/30-day freshness delay to our own images would add latency without providing the intended upstream-stabilization benefit.
 
