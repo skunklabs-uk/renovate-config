@@ -57,7 +57,7 @@
         "ghcr.io/skunklabs-uk/club-aviazione-popolare-cms",
         "harbor.lab.skunklabs.uk/private-ghcr/skunklabs-uk/club-aviazione-popolare-cms"
       ],
-      "versioning": "regex:^(?<major>\\d{4})\\.(?<minor>\\d{2})\\.(?<patch>\\d{2})-w(?<build>\\d+)-b(?<revision>\\d+)(?:-g(?<prerelease>\\d+))?$",
+      "versioning": "regex:^(?<major>\\d{4})\\.(?<minor>\\d{2})\\.(?<patch>\\d{2})-w(?<build>\\d{2})-b(?<revision>\\d{2})(?:-g(?<prerelease>\\d{2}))?$",
       "ignoreUnstable": false,
       "minimumReleaseAge": null
     }
