@@ -47,3 +47,21 @@ The standard split adopted during Wave `skunklabs-uk/developer-workspace#33` is:
 - do not duplicate these cooldowns in consumers or force a cross-repository upgrade merely to make all repositories show the same external version on the same day.
 
 A repository may bypass the external cooldown only for a concrete, documented exception such as a verified security gate with an upstream fix. The standing internal-OCI exemption is defined centrally in `default.json` and does not need to be re-declared by consumers.
+
+## Collegamento seriale per gli operatori
+
+**Stato: Active**
+
+Ogni incarico richiede repository e thread ammessi, branch e head esatti e il prompt corrente. Un solo consumer seriale esegue il task in un checkout isolato.
+
+Il report è distinto dalla pubblicazione: una modifica richiede `publish_paths` con i file esatti autorizzati e una PR Draft nello stesso repository. Il child restituisce il risultato senza eseguire commit, push, merge o rollout; il parent pubblica, poi il coordinatore rilegge SHA e diff e completa RETURN.
+
+La validazione dei preset appartiene al producer `renovate-config`, è distinta dai test del collegamento ed è definita in [validate-renovate.yml](.github/workflows/validate-renovate.yml). Il workflow si attiva su push a `main`; non prevede un trigger `pull_request`. Il comando configurato è:
+
+```sh
+npx --yes --package renovate@44.30.3 -- renovate-config-validator --no-global default.json automerge.json
+```
+
+Il repository produce configurazioni e non richiede un'applicazione o una preview HTTP. Restano necessari il controllo dei preset e RETURN.
+
+Per enrollment, selezione GitOps, recupero e stato persistente, fare riferimento alle fonti proprietarie: [WORKSPACE-HANDOFF.md](https://github.com/skunklabs-uk/developer-workspace/blob/main/docs/WORKSPACE-HANDOFF.md) per il collegamento e [README Homelab](https://github.com/skunklabs-uk/homelab/blob/main/gitops/apps/developer-workspace/README.md) per il lifecycle runtime.
