@@ -5,7 +5,7 @@ Shared Renovate presets for repositories owned by `skunklabs-uk`.
 ## Presets
 
 - `github>skunklabs-uk/renovate-config` — default policy with Dependency Dashboard, strict internal checks, immediate PR creation, and minimum release ages of 7 days for patch, 14 days for minor, and 30 days for major updates of external dependencies. Docker updates use `timestamp-optional`: when a registry exposes a release timestamp the normal cooldown applies; when it does not, the update is not blocked indefinitely only because its age cannot be determined.
-- `github>skunklabs-uk/renovate-config:automerge` — extends the default preset and enables PR automerge for patch and digest updates, subject to the same freshness and ownership rules.
+- `github>skunklabs-uk/renovate-config:automerge` — estende il preset predefinito e abilita l’automerge delle PR minor, patch e digest, rispettando le regole di maturazione e ownership. Per le immagini Docker esterne è necessaria una data di rilascio; le eccezioni OCI interne e le regole specifiche dei repository consumer mantengono la precedenza.
 
 `prCreation` is intentionally `immediate`: the shared preset must also work in repositories that only run CI for pull requests or protected branches and do not execute checks on `renovate/**` branches. Minimum release age remains the freshness gate for external dependencies when the datasource provides a supported release timestamp.
 
