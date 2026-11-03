@@ -29,9 +29,9 @@ Mutable aliases such as `latest`, branch tags or SHA recovery tags are not the o
 
 ## Repository self-management
 
-This repository intentionally does **not** use Renovate to manage its own dependencies. The absence of a top-level `renovate.json` is therefore expected, and Mend Renovate reporting that Renovate is disabled because no configuration file exists is not an actionable repository problem by itself.
+This repository extends its published preset in `renovate.json` to keep the validation workflow's `actions/setup-node` version input current. The shared preset is the sole source for release-age and update policy; the local file only enables Renovate for GitHub Actions and avoids overlap with Dependabot.
 
-GitHub Action references used by this repository are owned by Dependabot through `.github/dependabot.yml`. Introducing Renovate self-management requires a new explicit requirement or approved decision; the Mend notification alone is not sufficient justification.
+GitHub Action references remain owned by Dependabot through `.github/dependabot.yml`. The local Renovate rules disable `depType: action`, leaving supported `uses-with` inputs such as `actions/setup-node`'s `node-version` under Renovate. A custom regex manager updates the `RENOVATE_VERSION` pin in the validation workflow; the npm manager stays disabled. The workflow runs on Node 24 because the current Renovate CLI requires `^24.11.0`. A future Node 26 migration requires updating the Renovate pin, the allowed Node range, and the workflow runtime together after verifying the selected Renovate release's `engines`; Renovate cannot infer that compatibility transition automatically.
 
 ## Ownership when Dependabot and Renovate coexist
 
@@ -59,7 +59,7 @@ Il report è distinto dalla pubblicazione: una modifica richiede `publish_paths`
 La validazione dei preset appartiene al producer `renovate-config`, è distinta dai test del collegamento ed è definita in [validate-renovate.yml](.github/workflows/validate-renovate.yml). Il workflow si attiva su push a `main`; non prevede un trigger `pull_request`. Il comando configurato è:
 
 ```sh
-npx --yes --package renovate@44.30.3 -- renovate-config-validator --no-global default.json automerge.json
+npx --yes --package renovate@44.30.3 -- renovate-config-validator --no-global renovate.json default.json automerge.json
 ```
 
 Il repository produce configurazioni e non richiede un'applicazione o una preview HTTP. Restano necessari il controllo dei preset e RETURN.
