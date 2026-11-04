@@ -3,9 +3,14 @@ name: Validate Renovate presets
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
+
+env:
+  RENOVATE_VERSION: 44.30.3
 
 jobs:
   validate:
@@ -16,6 +21,4 @@ jobs:
         with:
           node-version: 24
       - name: Validate Renovate config
-        env:
-          RENOVATE_VERSION: 44.30.3
         run: npx --yes --package renovate@${RENOVATE_VERSION} -- renovate-config-validator --no-global renovate.json default.json automerge.json
