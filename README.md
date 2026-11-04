@@ -5,7 +5,7 @@ Shared Renovate presets for repositories owned by `skunklabs-uk`.
 ## Presets
 
 - `github>skunklabs-uk/renovate-config` — default policy with Dependency Dashboard, strict internal checks, immediate PR creation, and minimum release ages of 7 days for patch, 14 days for minor, and 30 days for major updates of external dependencies. Docker updates use `timestamp-optional`: when a registry exposes a release timestamp the normal cooldown applies; when it does not, the update is not blocked indefinitely only because its age cannot be determined.
-- `github>skunklabs-uk/renovate-config:automerge` — estende il preset predefinito e abilita l’automerge delle PR minor, patch e digest, rispettando le regole di maturazione e ownership. Per le immagini Docker esterne è necessaria una data di rilascio; le eccezioni OCI interne e le regole specifiche dei repository consumer mantengono la precedenza.
+- `github>skunklabs-uk/renovate-config:automerge` — estende il preset predefinito e abilita l’automerge delle PR minor, patch e digest, rispettando le regole di maturazione e ownership. Per le minor e patch delle immagini Docker esterne è necessaria una data di rilascio, così da verificare il periodo di maturazione. Gli aggiornamenti digest seguono la regola generale di automerge, senza questo requisito; `default.json` non assegna loro un periodo di maturazione. Le eccezioni OCI interne e le regole specifiche dei repository consumer mantengono la precedenza.
 
 `prCreation` is intentionally `immediate`: the shared preset must also work in repositories that only run CI for pull requests or protected branches and do not execute checks on `renovate/**` branches. Minimum release age remains the freshness gate for external dependencies when the datasource provides a supported release timestamp.
 
@@ -56,7 +56,7 @@ Ogni incarico richiede repository e thread ammessi, branch e head esatti e il pr
 
 Il report è distinto dalla pubblicazione: una modifica richiede `publish_paths` con i file esatti autorizzati e una PR Draft nello stesso repository. Il child restituisce il risultato senza eseguire commit, push, merge o rollout; il parent pubblica, poi il coordinatore rilegge SHA e diff e completa RETURN.
 
-La validazione dei preset appartiene al producer `renovate-config`, è distinta dai test del collegamento ed è definita in [validate-renovate.yml](.github/workflows/validate-renovate.yml). Il workflow si attiva su push a `main`; non prevede un trigger `pull_request`. Il comando configurato è:
+La validazione dei preset appartiene al producer `renovate-config`, è distinta dai test del collegamento ed è definita in [validate-renovate.yml](.github/workflows/validate-renovate.yml). Il workflow si attiva sulle pull request verso `main` e sui push a `main`. Il comando configurato è:
 
 ```sh
 npx --yes --package renovate@44.30.3 -- renovate-config-validator --no-global renovate.json default.json automerge.json
